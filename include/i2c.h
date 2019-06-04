@@ -1,11 +1,12 @@
 #ifndef __I2C_H
 #define __I2C_H
 
-#include <stm32f1xx_hal_i2c.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "stm32f1xx_hal.h"
+#include "main.h"
 
 extern I2C_HandleTypeDef i2c2;
 

@@ -1,5 +1,4 @@
 #include "i2c.h"
-#include "error_handler.h"
 
 I2C_HandleTypeDef i2c2;
 
@@ -16,6 +15,6 @@ void MX_I2C2_Init() {
     i2c2.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
 
     if (HAL_I2C_Init(&i2c2) != HAL_OK) {
-        Error_Handler(__FILE__, __LINE__);
+        Error_Handler();
     }
 }
