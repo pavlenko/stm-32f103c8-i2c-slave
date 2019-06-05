@@ -1,7 +1,25 @@
 #include "main.h"
 
+#include "i2c.h"
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
+
+#define MASTER_REQ_READ    0x12
+#define MASTER_REQ_WRITE   0x34
+/* Buffer used for transmission */
+uint8_t aTxBuffer[] = " ****I2C_TwoBoards communication based on IT****  ****I2C_TwoBoards communication based on IT****  ****I2C_TwoBoards communication based on IT**** ";
+
+/* Exported macro ------------------------------------------------------------*/
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
+
+/* Size of Transmission buffer */
+#define TXBUFFERSIZE                      (COUNTOF(aTxBuffer) - 1)
+/* Size of Reception buffer */
+#define RXBUFFERSIZE                      TXBUFFERSIZE
+uint8_t aRxBuffer[RXBUFFERSIZE];
+uint16_t hTxNumData = 0, hRxNumData = 0;
+uint8_t bTransferRequest = 0;
 
 int main() {
     HAL_Init();
@@ -10,6 +28,49 @@ int main() {
 
     while (1) {
         __NOP();
+        /* Initialize number of data variables */
+        hTxNumData = 0;
+        hRxNumData = 0;
+
+
+        /*##-2- Slave receive request from master ################################*/
+        while(HAL_I2C_Slave_Receive_IT(&i2c2, (uint8_t*)&bTransferRequest, 1)!= HAL_OK)
+        {
+        }
+
+        while (HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY)
+        {
+        }
+
+        /* If master request write operation #####################################*/
+        if (bTransferRequest == MASTER_REQ_WRITE)
+        {
+            /*##-3- Slave receive number of data to be read ########################*/
+            while(HAL_I2C_Slave_Receive_IT(&i2c2, (uint8_t*)&hRxNumData, 2)!= HAL_OK);
+
+            while (HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY)
+            {
+            }
+
+
+            /*##-4- Slave receives aRxBuffer from master ###########################*/
+            while(HAL_I2C_Slave_Receive_IT(&i2c2, (uint8_t*)aRxBuffer, hRxNumData)!= HAL_OK);
+
+
+            while (HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY)
+            {
+            }
+        } else {
+            /*##-3- Slave receive number of data to be written #####################*/
+            while (HAL_I2C_Slave_Receive_IT(&i2c2, (uint8_t *) &hTxNumData, 2) != HAL_OK);
+
+            while (HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY) {}
+
+            /*##-4- Slave transmit aTxBuffer to master #############################*/
+            while (HAL_I2C_Slave_Transmit_IT(&i2c2, (uint8_t *) aTxBuffer, RXBUFFERSIZE) != HAL_OK);
+
+            while (HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY) {}
+        }
     }
 }
 
