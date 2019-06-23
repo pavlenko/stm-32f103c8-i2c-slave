@@ -1,5 +1,8 @@
 #include "main.h"
+
 #include "stm32f1xx_it.h"
+
+#include "i2c.h"
 
 /**
   * @brief This function handles Non maskable interrupt.
@@ -61,4 +64,21 @@ void PendSV_Handler(void) {}
   */
 void SysTick_Handler(void) {
     HAL_IncTick();
+    HAL_SYSTICK_IRQHandler();
+}
+
+/**
+* @brief This function handles I2C1 event interrupt.
+*/
+void I2C2_EV_IRQHandler(void)
+{
+    HAL_I2C_EV_IRQHandler(&i2c2);
+}
+
+/**
+* @brief This function handles I2C1 error interrupt.
+*/
+void I2C2_ER_IRQHandler(void)
+{
+    HAL_I2C_ER_IRQHandler(&i2c2);
 }

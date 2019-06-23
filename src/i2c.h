@@ -8,6 +8,9 @@ extern "C" {
 #include "stm32f1xx_hal.h"
 #include "main.h"
 
+#define I2C2_OWN_ADDRESS_1 (0x30U)
+#define I2C2_OWN_ADDRESS_2 (0x00U)
+
 extern I2C_HandleTypeDef i2c2;
 
 void MX_I2C2_Init();
