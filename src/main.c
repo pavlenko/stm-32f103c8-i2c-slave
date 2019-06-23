@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "i2c.h"
+#include "led.h"
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
@@ -71,6 +72,8 @@ int main() {
 
             while (HAL_I2C_GetState(&i2c2) != HAL_I2C_STATE_READY) {}
         }
+
+        LED(LED_OFF);
     }
 }
 
