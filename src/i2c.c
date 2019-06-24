@@ -99,6 +99,16 @@ void restartComm(void) {
     i2c2_status = RX_TRANS_TYPE;
 }
 
+void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
+{
+    // Called after address received
+}
+
+void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *i2c)
+{
+    // Called after listening session completed
+}
+
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c){
     LED(LED_ON);
     if ((hi2c->Instance == I2C1) && (HAL_I2C_GetState(hi2c) == HAL_I2C_STATE_READY)) {
