@@ -86,7 +86,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2c)
          */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|GPIO_PIN_11);
 
-        /* I2C1 interrupt Deinit */
+        /* I2C2 interrupt Deinit */
         HAL_NVIC_DisableIRQ(I2C2_EV_IRQn);
         HAL_NVIC_DisableIRQ(I2C2_ER_IRQn);
     }

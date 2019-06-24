@@ -30,6 +30,12 @@ int main() {
     MX_LED_Init();
     MX_I2C2_Init();
 
+    //TODO check listen & renamed interrupt handlers
+    if (HAL_I2C_EnableListen_IT(&i2c2) != HAL_OK) {
+        /* Transfer error in reception process */
+        Error_Handler();
+    }
+
     restartComm();
 
     while (1) {
@@ -85,6 +91,7 @@ void SystemClock_Config() {
   */
 void _Error_Handler(char * file, int line)
 {
+    LED(LED_ON);
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     while(1)
