@@ -15,6 +15,8 @@ extern I2C_HandleTypeDef i2c2;
 
 void MX_I2C2_Init();
 
+void restartComm(void);
+
 #ifdef __cplusplus
 }
 #endif
