@@ -33,7 +33,10 @@ int main() {
     restartComm();
 
     while (1) {
+        LED(LED_ON);
+        HAL_Delay(100);
         LED(LED_OFF);
+        HAL_Delay(100);
     }
 }
 
