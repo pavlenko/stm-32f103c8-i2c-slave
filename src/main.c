@@ -36,10 +36,10 @@ int main() {
     MX_I2C_attachSlaveTXEvent(&i2c2_api, I2C2_slaveTXCallback);
 
     while (1) {
-        /*LED(LED_ON);
-        HAL_Delay(100);
-        LED(LED_OFF);*/
-        HAL_Delay(100);
+        LED(LED_ON);
+        HAL_Delay(500);
+        LED(LED_OFF);
+        HAL_Delay(500);
     }
 }
 
