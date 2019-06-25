@@ -6,22 +6,6 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
 
-#define MASTER_REQ_READ    0x12
-#define MASTER_REQ_WRITE   0x34
-/* Buffer used for transmission */
-//uint8_t aTxBuffer[] = " ****I2C_TwoBoards communication based on IT****  ****I2C_TwoBoards communication based on IT****  ****I2C_TwoBoards communication based on IT**** ";
-
-/* Exported macro ------------------------------------------------------------*/
-#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
-
-/* Size of Transmission buffer */
-#define TXBUFFERSIZE                      (COUNTOF(aTxBuffer) - 1)
-/* Size of Reception buffer */
-#define RXBUFFERSIZE                      TXBUFFERSIZE
-//uint8_t aRxBuffer[RXBUFFERSIZE];
-//uint16_t hTxNumData = 0, hRxNumData = 0;
-//uint8_t bTransferRequest = 0;
-
 int main() {
     HAL_Init();
 
@@ -29,14 +13,6 @@ int main() {
 
     MX_LED_Init();
     MX_I2C2_Init();
-
-    //TODO check listen & renamed interrupt handlers
-    if (HAL_I2C_EnableListen_IT(&i2c2) != HAL_OK) {
-        /* Transfer error in reception process */
-        Error_Handler();
-    }
-
-    restartComm();
 
     while (1) {
         LED(LED_ON);
