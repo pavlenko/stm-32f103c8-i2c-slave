@@ -14,10 +14,15 @@ int main() {
     MX_LED_Init();
     MX_I2C2_Init();
 
+    if (HAL_I2C_EnableListen_IT(&i2c2) != HAL_OK) {
+        /* Transfer error in reception process */
+        Error_Handler();
+    }
+
     while (1) {
-        LED(LED_ON);
+        /*LED(LED_ON);
         HAL_Delay(100);
-        LED(LED_OFF);
+        LED(LED_OFF);*/
         HAL_Delay(100);
     }
 }
@@ -49,15 +54,53 @@ void SystemClock_Config() {
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
         Error_Handler();
     }
+}
 
-    // Configure the SysTick interrupt time
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+/**
+  * @brief  Slave Address Match callback.
+  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+  *                the configuration information for the specified I2C.
+  * @param  TransferDirection: Master request Transfer Direction (Write/Read), value of @ref I2C_XferOptions_definition
+  * @param  AddrMatchCode: Address Match Code
+  * @retval None
+  */
+void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
+{
+    /* A new communication with a Master is initiated */
+    /* Turn LED2 On: A Communication is initiated */
+    //LED(LED_ON);
+    (void) hi2c;
+}
 
-    // Configure the SysTick
-    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+/**
+  * @brief  Listen Complete callback.
+  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
+  *                the configuration information for the specified I2C.
+  * @retval None
+  */
+void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+    /* Turn LED2 off: Communication is completed */
+    //LED(LED_ON);
+    (void) hi2c;
+}
 
-    // SysTick_IRQn interrupt configuration
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+/**
+  * @brief  I2C error callbacks.
+  * @param  I2cHandle: I2C handle
+  * @note   This example shows a simple way to report transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
+{
+    /** Error_Handler() function is called when error occurs.
+    * 1- When Slave don't acknowledge it's address, Master restarts communication.
+    * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
+    */
+    if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF) {
+        Error_Handler();
+    }
 }
 
 /**
