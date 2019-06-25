@@ -72,81 +72,6 @@ void SystemClock_Config() {
     }
 }
 
-#define RX_BUFFER_SIZE 2
-
-uint8_t aRxBuffer[RX_BUFFER_SIZE];
-
-/**
-  * @brief  Slave Address Match callback.
-  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
-  *                the configuration information for the specified I2C.
-  * @param  TransferDirection: Master request Transfer Direction (Write/Read), value of @ref I2C_XferOptions_definition
-  * @param  AddrMatchCode: Address Match Code
-  * @retval None
-  */
-void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode)
-{
-    /* A new communication with a Master is initiated */
-    /* Turn LED2 On: A Communication is initiated */
-    if (I2C2_OWN_ADDRESS_1 == AddrMatchCode) {
-        LED(LED_ON);
-
-        if (HAL_I2C_Slave_Sequential_Receive_IT(hi2c, (uint8_t *) aRxBuffer, RX_BUFFER_SIZE, I2C_FIRST_FRAME) != HAL_OK) {
-            /* Transfer error in reception process */
-            Error_Handler();
-            //LED(LED_OFF);
-            return;
-        }
-    }
-
-    (void) hi2c;
-}
-
-/**
-  * @brief  Listen Complete callback.
-  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
-  *                the configuration information for the specified I2C.
-  * @retval None
-  */
-void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-    /* Turn LED2 off: Communication is completed */
-    //LED(LED_ON);
-    (void) hi2c;
-}
-
-/**
-  * @brief  I2C error callbacks.
-  * @param  I2cHandle: I2C handle
-  * @note   This example shows a simple way to report transfer error, and you can
-  *         add your own implementation.
-  * @retval None
-  */
-void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *i2c)
-{
-    /** Error_Handler() function is called when error occurs.
-    * 1- When Slave don't acknowledge it's address, Master restarts communication.
-    * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
-    */
-    //LED(LED_ON);
-    if (HAL_I2C_GetError(i2c) != HAL_I2C_ERROR_AF) {
-        Error_Handler();
-        return;
-    }
-
-    HAL_I2C_DisableListen_IT(i2c);
-
-    // Re-start listen
-    if (HAL_I2C_EnableListen_IT(i2c) != HAL_OK) {
-        /* Transfer error in reception process */
-        LED(LED_OFF);
-        Error_Handler();
-        return;
-    }
-
-    LED(LED_OFF);
-}
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
@@ -154,13 +79,27 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *i2c)
   */
 void _Error_Handler(char * file, int line)
 {
-    LED(LED_ON);
-    /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
-    while(1)
-    {
+    while (1) {
+        // Predefined blink to inform about error
+        LED(LED_ON);
+        HAL_Delay(100);
+
+        LED(LED_OFF);
+        HAL_Delay(100);
+
+        LED(LED_ON);
+        HAL_Delay(100);
+
+        LED(LED_OFF);
+        HAL_Delay(100);
+
+        LED(LED_ON);
+        HAL_Delay(100);
+
+        LED(LED_OFF);
+        HAL_Delay(1500);
     }
-    /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT
