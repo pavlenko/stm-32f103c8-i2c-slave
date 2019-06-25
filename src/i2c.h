@@ -13,7 +13,14 @@ extern "C" {
 
 extern I2C_HandleTypeDef i2c2;
 
+void (*MX_I2C2_slaveRXCallback) (uint8_t *data, uint8_t size);
+void (*MX_I2C2_slaveTXCallback) (void);
+
 void MX_I2C2_Init();
+
+void MX_I2C_attachSlaveRXEvent(I2C_HandleTypeDef *i2c, void (*callback) (uint8_t *data, uint8_t size));
+
+void MX_I2C_attachSlaveTXEvent(I2C_HandleTypeDef *i2c, void (*callback) (void));
 
 #ifdef __cplusplus
 }

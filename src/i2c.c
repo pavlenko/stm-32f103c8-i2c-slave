@@ -70,22 +70,30 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2c)
     }
 }
 
-void i2c_attachSlaveRxEvent(i2c_t *obj, void (*function)(uint8_t*, int) )
+void MX_I2C_attachSlaveRXEvent(I2C_HandleTypeDef *i2c, void (*callback) (uint8_t *data, uint8_t size))
 {
-    if((obj == NULL) || (function == NULL))
+    if ((NULL == i2c) || (NULL == callback)) {
         return;
+    }
 
-    obj->i2c_onSlaveReceive = function;
-    HAL_I2C_EnableListen_IT(&(obj->handle));
+    if (i2c->Instance == I2C2) {
+        MX_I2C2_slaveRXCallback = callback;
+    }
+
+    HAL_I2C_EnableListen_IT(i2c);
 }
 
-void i2c_attachSlaveTxEvent(i2c_t *obj, void (*function)(void) )
+void MX_I2C_attachSlaveTXEvent(I2C_HandleTypeDef *i2c, void (*callback) (void))
 {
-    if((obj == NULL) || (function == NULL))
+    if ((NULL == i2c) || (NULL == callback)) {
         return;
+    }
 
-    obj->i2c_onSlaveTransmit = function;
-    HAL_I2C_EnableListen_IT(&(obj->handle));
+    if (i2c->Instance == I2C2) {
+        MX_I2C2_slaveTXCallback = callback;
+    }
+
+    HAL_I2C_EnableListen_IT(i2c);
 }
 
 void HAL_I2C_AddrCallback(I2C_HandleTypeDef *i2c, uint8_t direction, uint16_t address)
@@ -98,8 +106,8 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *i2c, uint8_t direction, uint16_t ad
         if (direction == I2C_DIRECTION_RECEIVE) {
             obj->slaveMode = SLAVE_MODE_TRANSMIT;
 
-            if(obj->i2c_onSlaveTransmit != NULL) {
-                obj->i2c_onSlaveTransmit();
+            if (MX_I2C2_slaveTXCallback != NULL) {
+                MX_I2C2_slaveTXCallback();
             }
 
             HAL_I2C_Slave_Sequential_Transmit_IT(
@@ -130,10 +138,9 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *i2c)
 
     i2c_t *obj = get_i2c_obj(hi2c);
 
-    if((obj->i2c_onSlaveReceive != NULL) &&
-       (obj->slaveMode == SLAVE_MODE_RECEIVE)) {
-        if(obj->slaveRxNbData != 0) {
-            obj->i2c_onSlaveReceive((uint8_t *) obj->i2cTxRxBuffer, obj->slaveRxNbData);
+    if ((MX_I2C2_slaveRXCallback != NULL) && (obj->slaveMode == SLAVE_MODE_RECEIVE)) {
+        if (obj->slaveRxNbData != 0) {
+            MX_I2C2_slaveRXCallback((uint8_t *) obj->i2cTxRxBuffer, obj->slaveRxNbData);
         }
     }
 
@@ -169,7 +176,7 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
     }
 }
 
-void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
+void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *i2c)
 {
     if (i2c->Instance != I2C2) {
         return;
