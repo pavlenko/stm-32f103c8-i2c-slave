@@ -68,7 +68,7 @@ void SysTick_Handler(void) {
 }
 
 /**
-* @brief This function handles I2C1 event interrupt.
+* @brief This function handles I2C2 event interrupt.
 */
 void I2C2_EV_IRQHandler(void)
 {
@@ -76,7 +76,7 @@ void I2C2_EV_IRQHandler(void)
 }
 
 /**
-* @brief This function handles I2C1 error interrupt.
+* @brief This function handles I2C2 error interrupt.
 */
 void I2C2_ER_IRQHandler(void)
 {

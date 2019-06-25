@@ -198,13 +198,3 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *i2c)
         HAL_I2C_EnableListen_IT(i2c);
     }
 }
-
-void I2C2_EV_IRQHandler(void)
-{
-    HAL_I2C_EV_IRQHandler(&i2c2);
-}
-
-void I2C2_ER_IRQHandler(void)
-{
-    HAL_I2C_ER_IRQHandler(&i2c2);
-}
