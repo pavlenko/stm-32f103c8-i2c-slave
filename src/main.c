@@ -56,6 +56,10 @@ void SystemClock_Config() {
     }
 }
 
+#define RX_BUFFER_SIZE 2
+
+uint8_t aRxBuffer[RX_BUFFER_SIZE];
+
 /**
   * @brief  Slave Address Match callback.
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
@@ -68,7 +72,17 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 {
     /* A new communication with a Master is initiated */
     /* Turn LED2 On: A Communication is initiated */
-    //LED(LED_ON);
+    if (I2C2_OWN_ADDRESS_1 == AddrMatchCode) {
+        LED(LED_ON);
+
+        if (HAL_I2C_Slave_Sequential_Receive_IT(hi2c, (uint8_t *) aRxBuffer, RX_BUFFER_SIZE, I2C_FIRST_FRAME) != HAL_OK) {
+            /* Transfer error in reception process */
+            Error_Handler();
+            //LED(LED_OFF);
+            return;
+        }
+    }
+
     (void) hi2c;
 }
 
@@ -92,15 +106,29 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c)
   *         add your own implementation.
   * @retval None
   */
-void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *I2cHandle)
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *i2c)
 {
     /** Error_Handler() function is called when error occurs.
     * 1- When Slave don't acknowledge it's address, Master restarts communication.
     * 2- When Master don't acknowledge the last data transferred, Slave don't care in this example.
     */
-    if (HAL_I2C_GetError(I2cHandle) != HAL_I2C_ERROR_AF) {
+    //LED(LED_ON);
+    if (HAL_I2C_GetError(i2c) != HAL_I2C_ERROR_AF) {
         Error_Handler();
+        return;
     }
+
+    HAL_I2C_DisableListen_IT(i2c);
+
+    // Re-start listen
+    if (HAL_I2C_EnableListen_IT(i2c) != HAL_OK) {
+        /* Transfer error in reception process */
+        LED(LED_OFF);
+        Error_Handler();
+        return;
+    }
+
+    LED(LED_OFF);
 }
 
 /**
