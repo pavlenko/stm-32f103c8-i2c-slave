@@ -6,6 +6,19 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
 
+void I2C2_slaveRXCallback(uint8_t *data, uint8_t size)
+{
+    __NOP();
+    (void) data;
+    (void) size;
+}
+
+void I2C2_slaveTXCallback(void)
+{
+    __NOP();
+    MX_I2C_slaveTransmit(&i2c2_api, (uint8_t *) "ABC", 3);
+}
+
 int main() {
     HAL_Init();
 
@@ -18,6 +31,9 @@ int main() {
         /* Transfer error in reception process */
         Error_Handler();
     }
+
+    MX_I2C_attachSlaveRXEvent(&i2c2_api, I2C2_slaveRXCallback);
+    MX_I2C_attachSlaveTXEvent(&i2c2_api, I2C2_slaveTXCallback);
 
     while (1) {
         /*LED(LED_ON);
