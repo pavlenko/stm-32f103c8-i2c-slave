@@ -40,9 +40,9 @@ int main() {
 
     while (1) {
         LED(LED_ON);
-        HAL_Delay(500);
+        HAL_Delay(100);
         LED(LED_OFF);
-        HAL_Delay(500);
+        HAL_Delay(900);
     }
 }
 

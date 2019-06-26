@@ -72,7 +72,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2c)
 
     if (i2c->Instance == I2C2) {
         /* GPIOB clock enable */
-        __HAL_RCC_GPIOB_CLK_ENABLE();//TODO <-- maybe bug be here, fix GPIOA -> GPIOB
+        __HAL_RCC_GPIOB_CLK_ENABLE();
 
         /* I2C2 clock enable */
         __HAL_RCC_I2C2_CLK_ENABLE();
@@ -84,7 +84,6 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2c)
          */
         GPIO_InitStruct.Pin   = GPIO_PIN_10|GPIO_PIN_11;
         GPIO_InitStruct.Mode  = GPIO_MODE_AF_OD;
-        //GPIO_InitStruct.Pull  = GPIO_PULLUP;//TODO try to check with no pull
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
