@@ -2,6 +2,7 @@
 
 #include "i2c.h"
 #include "led.h"
+#include "tim.h"
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
@@ -27,6 +28,7 @@ int main() {
 
     MX_LED_Init();
     MX_I2C2_Init();
+    MX_TIM1_Init();
 
     if (HAL_I2C_EnableListen_IT(&i2c2) != HAL_OK) {
         /* Transfer error in reception process */
