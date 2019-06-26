@@ -8,8 +8,9 @@ extern "C" {
 #include "stm32f1xx_hal.h"
 #include "main.h"
 
-#define I2C2_OWN_ADDRESS_1 (0x3E)
-#define I2C2_OWN_ADDRESS_2 (0xFF)
+// Real 7 bits slave address value is: b0011110 mean in uint8_t equivalent at 0x1E
+#define I2C2_OWN_ADDRESS_1 0x3C
+#define I2C2_OWN_ADDRESS_2 0xFF
 
 #define I2C_RX_BUFFER_MAX 32
 #define I2C_TX_BUFFER_MAX 32
