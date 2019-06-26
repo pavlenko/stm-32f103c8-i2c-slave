@@ -32,8 +32,11 @@ typedef struct {
     void (*slaveTXCallback) (void);
 } I2C_API_t;
 
+extern I2C_HandleTypeDef i2c1;
 extern I2C_HandleTypeDef i2c2;
 extern I2C_API_t i2c2_api;
+
+void MX_I2C1_Init();
 
 void MX_I2C2_Init();
 
