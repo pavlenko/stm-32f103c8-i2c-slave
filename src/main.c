@@ -16,7 +16,8 @@ void I2C2_slaveRXCallback(uint8_t *data, uint8_t size)
 void I2C2_slaveTXCallback(void)
 {
     __NOP();
-    MX_I2C_slaveTransmit(&i2c2_api, (uint8_t *) "ABC", 3);
+    uint8_t test[] = "ABC";
+    MX_I2C_slaveTransmit(&i2c2_api, test, 3);
 }
 
 int main() {
