@@ -7,16 +7,52 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
 
+enum {
+    COMMAND_NONE  = 0,
+    COMMAND_R_REG = 1,
+    COMMAND_W_REG = 2,
+};
+
+uint8_t command;
+uint16_t micros = 0;
+
 void I2C2_slaveRXCallback(uint8_t *data, uint8_t size)
 {
-    __NOP();
-    (void) data;
-    (void) size;
+    if (*data == 0x00) {
+        command = COMMAND_R_REG;
+        //TODO other make in tx callback
+        uint8_t response[2];
+
+        response[0] = (uint8_t) (micros >> 8u);
+        response[1] = (uint8_t) (micros & 0xFFu);
+
+        MX_I2C_slaveTransmit(&i2c2_api, response, 2);
+    }
+
+    if (*data == 0x20) {
+        command = COMMAND_W_REG;
+        micros  = (*(data + 1) << 8) | *(data + 2);
+        command = COMMAND_NONE;
+    }
+
+    //__NOP();
+    //(void) data;
+    //(void) size;
 }
 
 void I2C2_slaveTXCallback(void)
 {
-    __NOP();
+    /*if (command == COMMAND_R_REG) {
+        uint8_t response[2];
+
+        response[0] = (uint8_t) (micros >> 8u);
+        response[1] = (uint8_t) (micros & 0xFFu);
+
+        MX_I2C_slaveTransmit(&i2c2_api, response, 2);
+
+        command = COMMAND_NONE;
+    }*/
+    //__NOP();
     uint8_t test[] = "ABC";
     MX_I2C_slaveTransmit(&i2c2_api, test, 3);
 }
