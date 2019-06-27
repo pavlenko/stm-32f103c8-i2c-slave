@@ -184,12 +184,27 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *i2c, uint8_t direction, uint16_t ad
                     i2c2_api.slaveTXCallback();
                 }
 
-                HAL_I2C_Slave_Sequential_Transmit_IT(
-                        i2c,
-                        (uint8_t *) i2c2_api.txBufferData,
-                        i2c2_api.txBufferSize,
-                        I2C_LAST_FRAME
-                );
+                if (i2c2_api.txBufferSize != 0) {
+                    HAL_I2C_Slave_Sequential_Transmit_IT(
+                            i2c,
+                            (uint8_t *) i2c2_api.txBufferData,
+                            i2c2_api.txBufferSize,
+                            I2C_LAST_FRAME
+                    );
+                } else {
+                    //TODO option 1 - release sda line
+                    /* Clear ADDR flag */
+                    __HAL_I2C_CLEAR_ADDRFLAG(i2c);
+
+                    //TODO option 2 - respond with dummy data
+                    uint8_t dummy = 0xFF;
+                    HAL_I2C_Slave_Sequential_Transmit_IT(
+                            i2c,
+                            (uint8_t *) &dummy,
+                            1,
+                            I2C_LAST_FRAME
+                    );
+                }
             } else {
                 i2c2_api.slaveMode    = I2C_SLAVE_MODE_RECEIVE;
                 i2c2_api.rxBufferSize = 0;
