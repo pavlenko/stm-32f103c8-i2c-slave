@@ -75,6 +75,7 @@ int main() {
     MX_I2C_attachSlaveTXEvent(&i2c2_api, I2C2_slaveTXCallback);
 
     while (1) {
+        //TODO try to create i2c state machine in while loop like in demo
         LED(LED_ON);
         HAL_Delay(100);
         LED(LED_OFF);
