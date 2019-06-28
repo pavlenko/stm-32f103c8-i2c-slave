@@ -219,20 +219,7 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *i2c)
             I2C2_responseIndex = 0;
         } else if (I2C2_rxBufferData[0] == 0x01) {
             I2C2_responseIndex = 1;
-        }
-
-        /* Check Command code receive previously */
-        /* If data received match with a Internal Command Code, set the associated index */
-        /* Which will use for Tranmission process if requested by Master */
-        if(strcmp((char *)(aSlaveReceiveBuffer), (char *)(aCommandCode[0][0])) == 0)
-        {
-            ubSlaveInfoIndex = SLAVE_CHIP_NAME;
-        }
-        else if(strcmp((char *)(aSlaveReceiveBuffer), (char *)(aCommandCode[1][0])) == 0)
-        {
-            ubSlaveInfoIndex = SLAVE_CHIP_REVISION;
-        }
-        else {
+        } else {
             if (HAL_I2C_Slave_Sequential_Receive_IT(i2c, &I2C2_rxBufferData[I2C2_rxBufferSize], 1, I2C_FIRST_FRAME) != HAL_OK) {
                 Error_Handler();
             }
