@@ -1,13 +1,34 @@
 #include "i2c.h"
+
+#include <stdio.h>
+#include <string.h>
+
 #include "led.h"
 
 I2C_HandleTypeDef i2c1;
 I2C_HandleTypeDef i2c2;
 
+enum {
+    I2C_STATUS_READY    = 0,
+    I2C_STATUS_LISTEN   = 1,
+    I2C_STATUS_BUSY     = 2,
+    I2C_STATUS_COMPLETE = 3,
+} I2C_status_t;
+
+uint8_t I2C2_status;
 uint8_t I2C2_rxBufferData[I2C_RX_BUFFER_MAX];
 uint8_t I2C2_rxBufferSize;
 uint8_t I2C2_txBufferData[I2C_RX_BUFFER_MAX];
 uint8_t I2C2_txBufferSize;
+
+uint8_t I2C2_responseIndex;
+const char* I2C2_responseValue[] = {
+        "STM32F103xx",
+        "1.2.3"
+};
+
+uint8_t *I2C2_responseData;
+uint8_t I2C2_responseSize;
 
 void MX_I2C1_Init()
 {
@@ -136,31 +157,45 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2c)
 }
 
 void MX_I2C2_Dispatch()
-{}
+{
+    if (I2C2_status == I2C_STATUS_READY) {
+        if (HAL_I2C_EnableListen_IT(&i2c2) != HAL_OK) {
+            Error_Handler();
+        }
+
+        I2C2_status = I2C_STATUS_LISTEN;
+    }
+
+    if (I2C2_status == I2C_STATUS_COMPLETE) {
+        HAL_Delay(1000);
+
+        I2C2_rxBufferSize = 0;
+        I2C2_txBufferSize = 0;
+
+        I2C2_status = I2C_STATUS_READY;
+
+        LED(LED_OFF);
+    }
+}
 
 void HAL_I2C_AddrCallback(I2C_HandleTypeDef *i2c, uint8_t direction, uint16_t address)
 {
     if (i2c->Instance == I2C2) {
         if (address == i2c->Init.OwnAddress1) {
-            uwTransferInitiated = 1;
-            uwTransferDirection = TransferDirection;
+            I2C2_status = I2C_STATUS_BUSY;
 
-            /* First of all, check the transfer direction to call the correct Slave Interface */
-            if(uwTransferDirection == I2C_DIRECTION_TRANSMIT)
-            {
-                if(HAL_I2C_Slave_Sequential_Receive_IT(&I2cHandle, &aSlaveReceiveBuffer[ubSlaveReceiveIndex], 1, I2C_FIRST_FRAME) != HAL_OK)
-                {
+            // First of all, check the transfer direction to call the correct Slave Interface
+            if (direction == I2C_DIRECTION_TRANSMIT) {
+                if (HAL_I2C_Slave_Sequential_Receive_IT(i2c, &I2C2_rxBufferData[I2C2_rxBufferSize], 1, I2C_FIRST_FRAME) != HAL_OK) {
                     Error_Handler();
                 }
-                ubSlaveReceiveIndex++;
-            }
-            else
-            {
-                pSlaveTransmitBuffer = (uint8_t*)(aSlaveInfo[ubSlaveInfoIndex]);
-                ubSlaveNbDataToTransmit = strlen((char *)(aSlaveInfo[ubSlaveInfoIndex]));
 
-                if(HAL_I2C_Slave_Sequential_Transmit_IT(&I2cHandle, pSlaveTransmitBuffer, ubSlaveNbDataToTransmit, I2C_LAST_FRAME) != HAL_OK)
-                {
+                I2C2_rxBufferSize++;
+            } else {
+                I2C2_responseData = (uint8_t*) (I2C2_responseValue[I2C2_responseIndex]);
+                I2C2_responseSize = strlen((char *) (I2C2_responseValue[I2C2_responseIndex]));
+
+                if (HAL_I2C_Slave_Sequential_Transmit_IT(i2c, I2C2_responseData, I2C2_responseSize, I2C_LAST_FRAME) != HAL_OK) {
                     Error_Handler();
                 }
             }
@@ -171,15 +206,20 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *i2c, uint8_t direction, uint16_t ad
 void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *i2c)
 {
     if (i2c->Instance == I2C2) {
-        uwTransferEnded = 1;
+        I2C2_status = I2C_STATUS_COMPLETE;
     }
 }
 
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *i2c)
 {
     if (i2c->Instance == I2C2) {
-        /* Turn LED2 on: Transfer in reception process is correct */
-        BSP_LED_On(LED2);
+        LED(LED_ON);
+
+        if (I2C2_rxBufferData[0] == 0x00) {
+            I2C2_responseIndex = 0;
+        } else if (I2C2_rxBufferData[0] == 0x01) {
+            I2C2_responseIndex = 1;
+        }
 
         /* Check Command code receive previously */
         /* If data received match with a Internal Command Code, set the associated index */
@@ -192,13 +232,12 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *i2c)
         {
             ubSlaveInfoIndex = SLAVE_CHIP_REVISION;
         }
-        else
-        {
-            if(HAL_I2C_Slave_Sequential_Receive_IT(I2cHandle, &aSlaveReceiveBuffer[ubSlaveReceiveIndex], 1, I2C_FIRST_FRAME) != HAL_OK)
-            {
+        else {
+            if (HAL_I2C_Slave_Sequential_Receive_IT(i2c, &I2C2_rxBufferData[I2C2_rxBufferSize], 1, I2C_FIRST_FRAME) != HAL_OK) {
                 Error_Handler();
             }
-            ubSlaveReceiveIndex++;
+
+            I2C2_rxBufferSize++;
         }
     }
 }
