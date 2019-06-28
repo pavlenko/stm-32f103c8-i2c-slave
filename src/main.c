@@ -7,20 +7,6 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config();
 
-void I2C2_slaveRXCallback(uint8_t *data, uint8_t size)
-{
-    __NOP();
-    (void) data;
-    (void) size;
-}
-
-void I2C2_slaveTXCallback(void)
-{
-    __NOP();
-    uint8_t test[] = "ABC";
-    MX_I2C_slaveTransmit(&i2c2_api, test, 3);
-}
-
 int main() {
     HAL_Init();
 
@@ -30,19 +16,12 @@ int main() {
     MX_I2C2_Init();
     MX_TIM1_Init();
 
-    if (HAL_I2C_EnableListen_IT(&i2c2) != HAL_OK) {
-        /* Transfer error in reception process */
-        Error_Handler();
-    }
-
-    MX_I2C_attachSlaveRXEvent(&i2c2_api, I2C2_slaveRXCallback);
-    MX_I2C_attachSlaveTXEvent(&i2c2_api, I2C2_slaveTXCallback);
-
     while (1) {
-        LED(LED_ON);
+        MX_I2C2_Dispatch();
+        /*LED(LED_ON);
         HAL_Delay(100);
         LED(LED_OFF);
-        HAL_Delay(900);
+        HAL_Delay(900);*/
     }
 }
 
