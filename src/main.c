@@ -16,7 +16,7 @@ int main() {
     MX_I2C2_Init();
     MX_TIM1_Init();
 
-    Error_Handler();
+    //Error_Handler();
 
     while (1) {
         MX_I2C2_Dispatch();

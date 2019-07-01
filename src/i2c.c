@@ -167,8 +167,6 @@ void MX_I2C2_Dispatch()
     }
 
     if (I2C2_status == I2C_STATUS_COMPLETE) {
-        HAL_Delay(1000);
-
         I2C2_rxBufferSize = 0;
         I2C2_txBufferSize = 0;
 
@@ -242,5 +240,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *i2c)
         if (HAL_I2C_GetError(i2c) != HAL_I2C_ERROR_AF) {
             Error_Handler();
         }
+
+        I2C2_status = I2C_STATUS_COMPLETE;
     }
 }
